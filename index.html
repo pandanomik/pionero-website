@@ -6,77 +6,287 @@
     <title>Pionero - AI-Driven Customer Service</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        :root {
+            --s8: 8px;
+            --s12: 12px;
+            --s16: 16px;
+            --s20: 20px;
+            --s24: 24px;
+            --s32: 32px;
+            --radius2: 8px;
         }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #2D3047 0%, #1B998B 100%);
+        }
+        
         .gradient-text {
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            background-image: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background-image: linear-gradient(135deg, #2D3047 0%, #1B998B 100%);
         }
-        .hero-shape {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-            z-index: -1;
+        
+        .btn-primary {
+            background-color: #1B998B;
+            color: white;
+            transition: all 0.3s ease;
         }
-        .timeline-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #8b5cf6;
-            position: absolute;
-            left: -6px;
+        
+        .btn-primary:hover {
+            background-color: #168077;
         }
-        .timeline-line {
-            width: 2px;
-            background: #e5e7eb;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid #1B998B;
+            color: #1B998B;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(27, 153, 139, 0.1);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Demo section styles */
+        .demo-container {
+            background-color: #F8F9FA;
+            border-radius: 12px;
+        }
+        
+        .conversation-log {
+            height: 300px;
+            overflow-y: auto;
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .ai-message {
+            background-color: #F3F4F6;
+            border-radius: 8px 8px 8px 0;
+        }
+        
+        .user-message {
+            background-color: #1B998B;
+            color: white;
+            border-radius: 8px 8px 0 8px;
+        }
+        
+        .call-interface {
+            background-color: #5B652A;
+            border-radius: 8px;
+        }
+        
+        .fadeFromLeft {
+            opacity: 0;
+            transition: opacity 0.4s, transform 0.4s;
+        }
+        
+        .fadeFromLeft.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .fadeFromRight {
+            opacity: 0;
+            transition: opacity 0.4s, transform 0.4s;
+        }
+        
+        .fadeFromRight.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        @media screen and (min-width: 768px) {
+            .fadeFromLeft {
+                transform: translateX(-25%);
+            }
+            
+            .fadeFromRight {
+                transform: translateX(25%);
+            }
         }
     </style>
 </head>
-<body class="font-sans text-gray-800 bg-gray-50">
+<body class="font-sans text-gray-800 bg-white">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm py-4 sticky top-0 z-10">
+    <nav class="bg-white py-4 sticky top-0 z-10 shadow-sm">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <div class="flex items-center">
-                <span class="text-2xl font-bold gradient-text">Pionero</span>
+                <img src="/api/placeholder/40/40" alt="Pionero Logo" class="h-10 w-10 mr-3 bg-black rounded-full">
+                <span class="text-2xl font-bold">Pionero</span>
             </div>
             <div class="hidden md:flex space-x-8">
+                <a href="#demo" class="text-gray-600 hover:text-gray-900">Demo</a>
                 <a href="#about" class="text-gray-600 hover:text-gray-900">About</a>
                 <a href="#products" class="text-gray-600 hover:text-gray-900">Products</a>
                 <a href="#features" class="text-gray-600 hover:text-gray-900">Features</a>
                 <a href="#contact" class="text-gray-600 hover:text-gray-900">Contact</a>
             </div>
             <div>
-                <button class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition duration-300">Get Started</button>
+                <button class="btn-primary px-5 py-2 rounded-lg">Get Started</button>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="py-20 relative overflow-hidden">
-        <div class="hero-shape"></div>
+    <section class="py-20 bg-white">
         <div class="container mx-auto px-6">
             <div class="flex flex-col md:flex-row items-center">
                 <div class="md:w-1/2">
                     <h1 class="text-4xl md:text-5xl font-bold mb-6">Revolutionize Customer Service with AI</h1>
                     <p class="text-xl text-gray-600 mb-8">Automate repetitive inquiries in local languages, improve operational efficiency, and boost customer satisfaction with our AI-driven platform.</p>
+                    
+                    <div class="mb-6 w-full max-w-md">
+                        <div class="flex">
+                            <input type="email" placeholder="Enter your email" class="flex-grow px-4 py-3 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <button class="btn-primary px-6 py-3 rounded-r-lg">Get Started</button>
+                        </div>
+                    </div>
+                    
                     <div class="flex space-x-4">
-                        <button class="gradient-bg text-white px-6 py-3 rounded-lg hover:opacity-90 transition duration-300">Request Demo</button>
-                        <button class="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition duration-300">Learn More</button>
+                        <button class="btn-secondary px-6 py-3 rounded-lg">Learn More</button>
                     </div>
                 </div>
                 <div class="md:w-1/2 mt-12 md:mt-0">
                     <img src="/api/placeholder/600/400" alt="AI Customer Service Platform" class="rounded-xl shadow-xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">Experience Our AI in Action</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Try our AI-powered customer service platform with this interactive demo.</p>
+            </div>
+            
+            <div class="demo-container p-8 max-w-6xl mx-auto">
+                <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 mb-2">Select a company</label>
+                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option>Banking - AzerTurk Bank</option>
+                            <option>Retail - Bravo Supermarkets</option>
+                            <option>Telecom - Azercell</option>
+                            <option>Insurance - AzInsurance</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Select language</label>
+                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option>Azerbaijani</option>
+                            <option>English</option>
+                            <option>Russian</option>
+                            <option>Turkish</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Voice Interface -->
+                    <div class="md:col-span-1 bg-gray-900 rounded-xl overflow-hidden relative shadow-lg" style="height: 400px;">
+                        <img src="/api/placeholder/400/400" alt="AI Voice Interface" class="w-full h-full object-cover opacity-50">
+                        
+                        <div class="absolute inset-0 flex flex-col justify-between p-6">
+                            <div class="fadeFromLeft active">
+                                <div class="flex flex-col justify-between items-start select-none">
+                                    <div class="text-green-400 flex items-center gap-2 mb-2">
+                                        <p class="font-medium">Maya</p>
+                                        <div>
+                                            <p>02:02</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-green-300">Azercell</div>
+                                </div>
+                            </div>
+                            
+                            <div class="w-full">
+                                <div class="flex flex-col bg-green-900 rounded-lg overflow-hidden fadeFromRight active">
+                                    <button class="relative w-full p-4 text-green-400 group">
+                                        <span class="relative z-10 flex justify-center items-center gap-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                            </svg>
+                                            Mute
+                                        </span>
+                                    </button>
+                                    <button class="relative w-full p-4 text-green-400 group border-t border-green-800">
+                                        <span class="relative z-10 flex justify-center items-center gap-3">
+                                            <span class="bg-red-500 rounded-full w-3 h-3"></span>
+                                            End call
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversation Log -->
+                    <div class="md:col-span-2">
+                        <h3 class="text-xl font-bold mb-4">Conversation Log</h3>
+                        <div class="conversation-log p-4">
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white font-bold mr-3">A</div>
+                                    <div class="ai-message p-3 max-w-3xl">
+                                        <p>Hello! I'm Maya, your Azercell virtual assistant. How may I help you today?</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start justify-end">
+                                    <div class="user-message p-3 max-w-3xl">
+                                        <p>Hi, I'd like to know about your internet packages.</p>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold ml-3">U</div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white font-bold mr-3">A</div>
+                                    <div class="ai-message p-3 max-w-3xl">
+                                        <p>Of course! I'd be happy to provide information about our internet packages. Azercell offers several options:</p>
+                                        <ul class="list-disc pl-5 mt-2">
+                                            <li>Daily package: 500MB for 1 AZN</li>
+                                            <li>Weekly package: 2GB for 5 AZN</li>
+                                            <li>Monthly package: 5GB for 10 AZN</li>
+                                            <li>Monthly package: 10GB for 15 AZN</li>
+                                        </ul>
+                                        <p class="mt-2">Would you like more details about any specific package?</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start justify-end">
+                                    <div class="user-message p-3 max-w-3xl">
+                                        <p>Can you tell me more about the 10GB package?</p>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold ml-3">U</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="flex">
+                                <input type="text" placeholder="Type your message here..." class="flex-grow px-4 py-3 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <button class="btn-primary px-6 py-3 rounded-r-lg">Send</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -90,17 +300,17 @@
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">Pionero revolutionizes customer service by automating repetitive inquiries in local languages through AI-driven operator platform, improving operational efficiency and boosting customer satisfaction.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-gray-50 p-8 rounded-xl">
-                    <div class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mb-6">
+                <div class="bg-gray-50 p-8 rounded-xl card-hover">
+                    <div class="w-16 h-16 rounded-full bg-teal-600 flex items-center justify-center mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                         </svg>
                     </div>
                     <h3 class="text-xl font-bold mb-3">Multilingual Support</h3>
                     <p class="text-gray-600">Communicate with customers in their native language, providing personalized support at scale.</p>
                 </div>
-                <div class="bg-gray-50 p-8 rounded-xl">
-                    <div class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mb-6">
+                <div class="bg-gray-50 p-8 rounded-xl card-hover">
+                    <div class="w-16 h-16 rounded-full bg-teal-600 flex items-center justify-center mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
@@ -108,8 +318,8 @@
                     <h3 class="text-xl font-bold mb-3">Operational Efficiency</h3>
                     <p class="text-gray-600">Reduce response times and free your team to focus on complex issues that require human touch.</p>
                 </div>
-                <div class="bg-gray-50 p-8 rounded-xl">
-                    <div class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mb-6">
+                <div class="bg-gray-50 p-8 rounded-xl card-hover">
+                    <div class="w-16 h-16 rounded-full bg-teal-600 flex items-center justify-center mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
@@ -130,27 +340,13 @@
             </div>
 
             <!-- Product 1: Chatbot -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-12">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-12 card-hover">
                 <div class="flex flex-col md:flex-row">
                     <div class="md:w-2/5 p-8">
                         <h3 class="text-2xl font-bold mb-4">AI Chatbot</h3>
                         <p class="text-gray-600 mb-6">Intelligent conversational AI that handles customer inquiries on your website, providing instant responses and seamless escalation to human agents when needed.</p>
                         
-                        <div class="relative pl-8 mb-4">
-                            <div class="timeline-line"></div>
-                            <div class="timeline-dot top-0"></div>
-                            <div class="mb-4">
-                                <h4 class="font-bold">Initial Working Bot</h4>
-                                <p class="text-gray-600">1 month to build a decent working bot</p>
-                            </div>
-                            <div class="timeline-dot top-24"></div>
-                            <div>
-                                <h4 class="font-bold">Website Integrated Bot</h4>
-                                <p class="text-gray-600">2-3 months to improve and integrate with knowledge and test</p>
-                            </div>
-                        </div>
-                        
-                        <button class="gradient-bg text-white px-5 py-2 rounded-lg hover:opacity-90 transition duration-300 mt-4">Learn More</button>
+                        <button class="btn-primary px-5 py-2 rounded-lg mt-4">Learn More</button>
                     </div>
                     <div class="md:w-3/5">
                         <img src="/api/placeholder/800/400" alt="AI Chatbot" class="w-full h-full object-cover">
@@ -159,7 +355,7 @@
             </div>
 
             <!-- Product 2: Call Center AI Bot -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-12">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-12 card-hover">
                 <div class="flex flex-col md:flex-row">
                     <div class="md:w-3/5 order-2 md:order-1">
                         <img src="/api/placeholder/800/400" alt="Call Center AI Bot" class="w-full h-full object-cover">
@@ -168,47 +364,19 @@
                         <h3 class="text-2xl font-bold mb-4">Call Center AI Bot</h3>
                         <p class="text-gray-600 mb-6">Voice-enabled AI assistant that handles phone inquiries, routes complex questions to operators, and reduces wait times for customers.</p>
                         
-                        <div class="relative pl-8 mb-4">
-                            <div class="timeline-line"></div>
-                            <div class="timeline-dot top-0"></div>
-                            <div class="mb-4">
-                                <h4 class="font-bold">Initial Level</h4>
-                                <p class="text-gray-600">1 month to improve to a good level</p>
-                            </div>
-                            <div class="timeline-dot top-24"></div>
-                            <div>
-                                <h4 class="font-bold">Integrated Call Center Agent</h4>
-                                <p class="text-gray-600">3 to 6 months to build something perfect and integrate with local systems</p>
-                            </div>
-                        </div>
-                        
-                        <button class="gradient-bg text-white px-5 py-2 rounded-lg hover:opacity-90 transition duration-300 mt-4">Learn More</button>
+                        <button class="btn-primary px-5 py-2 rounded-lg mt-4">Learn More</button>
                     </div>
                 </div>
             </div>
 
             <!-- Product 3: Knowledge Management -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-12">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-12 card-hover">
                 <div class="flex flex-col md:flex-row">
                     <div class="md:w-2/5 p-8">
                         <h3 class="text-2xl font-bold mb-4">Knowledge Management</h3>
                         <p class="text-gray-600 mb-6">Internal AI chat tool integrated with company data, accessible only to internal stakeholders and built on-premise to secure sensitive information.</p>
                         
-                        <div class="relative pl-8 mb-4">
-                            <div class="timeline-line"></div>
-                            <div class="timeline-dot top-0"></div>
-                            <div class="mb-4">
-                                <h4 class="font-bold">Initial Prototype</h4>
-                                <p class="text-gray-600">2 weeks to build the initial prototype</p>
-                            </div>
-                            <div class="timeline-dot top-24"></div>
-                            <div>
-                                <h4 class="font-bold">On-Premise Solution</h4>
-                                <p class="text-gray-600">3-6 months to build Azerbaijani LLM on-premise solution and integrate with data</p>
-                            </div>
-                        </div>
-                        
-                        <button class="gradient-bg text-white px-5 py-2 rounded-lg hover:opacity-90 transition duration-300 mt-4">Learn More</button>
+                        <button class="btn-primary px-5 py-2 rounded-lg mt-4">Learn More</button>
                     </div>
                     <div class="md:w-3/5">
                         <img src="/api/placeholder/800/400" alt="Knowledge Management" class="w-full h-full object-cover">
@@ -217,7 +385,7 @@
             </div>
 
             <!-- Product 4: Customer Data Analysis -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
                 <div class="flex flex-col md:flex-row">
                     <div class="md:w-3/5 order-2 md:order-1">
                         <img src="/api/placeholder/800/400" alt="Customer Data Analysis" class="w-full h-full object-cover">
@@ -228,26 +396,26 @@
                         
                         <ul class="space-y-3 mb-6">
                             <li class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-teal-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
                                 <span>Call summarization</span>
                             </li>
                             <li class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-teal-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
                                 <span>Product/feature feedback</span>
                             </li>
                             <li class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-teal-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
                                 <span>Sentiment analysis</span>
                             </li>
                         </ul>
                         
-                        <button class="gradient-bg text-white px-5 py-2 rounded-lg hover:opacity-90 transition duration-300 mt-4">Learn More</button>
+                        <button class="btn-primary px-5 py-2 rounded-lg mt-4">Learn More</button>
                     </div>
                 </div>
             </div>
@@ -262,9 +430,9 @@
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">Our AI-driven platform offers unique advantages for businesses of all sizes</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="flex p-6 bg-gray-50 rounded-xl">
+                <div class="flex p-6 bg-gray-50 rounded-xl card-hover">
                     <div class="mr-4">
-                        <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full bg-teal-600 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                             </svg>
@@ -275,9 +443,9 @@
                         <p class="text-gray-600">Our platform excels at understanding and responding in local languages, including Azerbaijani, providing a natural experience for your customers.</p>
                     </div>
                 </div>
-                <div class="flex p-6 bg-gray-50 rounded-xl">
+                <div class="flex p-6 bg-gray-50 rounded-xl card-hover">
                     <div class="mr-4">
-                        <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full bg-teal-600 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -288,9 +456,9 @@
                         <p class="text-gray-600">Provide instant responses to customer inquiries at any time of day, improving satisfaction and reducing wait times.</p>
                     </div>
                 </div>
-                <div class="flex p-6 bg-gray-50 rounded-xl">
+                <div class="flex p-6 bg-gray-50 rounded-xl card-hover">
                     <div class="mr-4">
-                        <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full bg-teal-600 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
@@ -301,9 +469,9 @@
                         <p class="text-gray-600">Keep your sensitive data secure with our on-premise deployment options, ensuring compliance with data protection regulations.</p>
                     </div>
                 </div>
-                <div class="flex p-6 bg-gray-50 rounded-xl">
+                <div class="flex p-6 bg-gray-50 rounded-xl card-hover">
                     <div class="mr-4">
-                        <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-full bg-teal-600 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                             </svg>
@@ -326,7 +494,7 @@
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">Hear from businesses that have transformed their customer service with Pionero</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white p-8 rounded-xl shadow-sm">
+                <div class="bg-white p-8 rounded-xl shadow-sm card-hover">
                     <div class="flex items-center mb-4">
                         <div class="text-yellow-400 flex">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -355,7 +523,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-8 rounded-xl shadow-sm">
+                <div class="bg-white p-8 rounded-xl shadow-sm card-hover">
                     <div class="flex items-center mb-4">
                         <div class="text-yellow-400 flex">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -384,7 +552,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-8 rounded-xl shadow-sm">
+                <div class="bg-white p-8 rounded-xl shadow-sm card-hover">
                     <div class="flex items-center mb-4">
                         <div class="text-yellow-400 flex">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -418,12 +586,12 @@
     </section>
 
     <!-- CTA Section -->
-    <section id="contact" class="py-20 gradient-bg">
+    <section id="contact" class="py-20 bg-teal-600">
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-3xl font-bold text-white mb-8">Ready to Transform Your Customer Service?</h2>
             <p class="text-xl text-white opacity-90 mb-10 max-w-3xl mx-auto">Join the companies that are already revolutionizing their customer service with Pionero's AI-driven solutions.</p>
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <button class="bg-white text-indigo-600 px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition duration-300">Request Demo</button>
+                <button class="bg-white text-teal-600 px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition duration-300">Request Demo</button>
                 <button class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white hover:bg-opacity-10 transition duration-300">Contact Sales</button>
             </div>
         </div>
@@ -434,7 +602,10 @@
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                    <h3 class="text-2xl font-bold mb-4">Pionero</h3>
+                    <div class="flex items-center mb-4">
+                        <img src="/api/placeholder/40/40" alt="Pionero Logo" class="h-10 w-10 mr-3 bg-white rounded-full">
+                        <h3 class="text-2xl font-bold">Pionero</h3>
+                    </div>
                     <p class="text-gray-400">Revolutionizing customer service with AI-driven solutions in multiple languages.</p>
                 </div>
                 <div>
@@ -491,5 +662,12 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        // Animation for call interface
+        document.addEventListener('DOMContentLoaded', function() {
+            // Already active in the HTML, but could add animation logic here
+        });
+    </script>
 </body>
 </html>
