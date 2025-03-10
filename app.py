@@ -48,6 +48,7 @@ SYSTEM_PROMPTS = {
 }
 
 def generate_audio(text, voice_id):
+    """Generate audio using ElevenLabs TTS API."""
     elevenlabs_url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
     headers = {
         "xi-api-key": os.environ.get("ELEVENLABS_API_KEY"),
@@ -62,20 +63,17 @@ def generate_audio(text, voice_id):
             "similarity_boost": 0.75
         }
     }
-    print("Payload sent to ElevenLabs:", payload)  # Log payload for debugging.
+    print(f"Generating TTS with ElevenLabs for language using voice: {voice_id}")
     try:
         tts_response = requests.post(elevenlabs_url, json=payload, headers=headers)
         tts_response.raise_for_status()
+        return tts_response.content
     except Exception as e:
-        error_details = tts_response.text if tts_response is not None else "No response body."
+        error_details = tts_response.text if 'tts_response' in locals() else "No response body."
         raise Exception(f"Error generating TTS: {str(e)}. Details: {error_details}")
-    return tts_response.content
     
 def correct_azerbaijani_text(text):
-    """
-    Uses the OpenAI ChatCompletion API to correct the grammar
-    of the given Azerbaijani text.
-    """
+    """Uses the OpenAI ChatCompletion API to correct the grammar of the given Azerbaijani text."""
     messages = [
         {
             "role": "system",
@@ -98,6 +96,7 @@ def correct_azerbaijani_text(text):
     return corrected_text
 
 def language_name(lang_code):
+    """Get the language name from a language code."""
     mapping = {
         "en-US": "English",
         "ru-RU": "Russian",
@@ -108,120 +107,165 @@ def language_name(lang_code):
 
 @app.route("/")
 def index():
+    """Render the main index page."""
     return render_template("index.html")
 
 @app.route("/dial", methods=["POST"])
 def dial():
-    data = request.get_json() or {}
+    """Handle the initial dial request to start a conversation."""
+    try:
+        data = request.get_json() or {}
 
-    org = data.get("organization", "bank")  # default to "bank"
-    lang = data.get("language", "en-US")      # default to English
-    # Append instruction to respond in the chosen language.
-    base_prompt = SYSTEM_PROMPTS.get(org, SYSTEM_PROMPTS["bank"])
-    system_prompt = base_prompt + f" Respond in {language_name(lang)}. AI operator name have to be in {language_name(lang)}."
+        org = data.get("organization", "bank")  # default to "bank"
+        lang = data.get("language", "en-US")      # default to English
+        
+        # Append instruction to respond in the chosen language.
+        base_prompt = SYSTEM_PROMPTS.get(org, SYSTEM_PROMPTS["bank"])
+        system_prompt = base_prompt + f" Respond in {language_name(lang)}. AI operator name have to be in {language_name(lang)}."
+        
+        # Reset conversation history.
+        session.pop("conversation", None)
+        conversation = [{"role": "system", "content": system_prompt}]
+        conversation.append({"role": "user", "content": "Dial in"})
+
+        try:
+            response_llm = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=conversation
+            )
+            answer = response_llm.choices[0].message.content
+            conversation.append({"role": "assistant", "content": answer})
+            session["conversation"] = conversation
+        except Exception as e:
+            app.logger.error(f"LLM Error: {str(e)}")
+            return jsonify({"error": f"Error generating response: {str(e)}"}), 500
+
+        try:
+            print(f'Generating audio for: {answer}')
+            if lang == "az-AZ":
+                audio_content = text_to_speech(answer)
+                if not audio_content:
+                    raise Exception("Failed to generate Azerbaijani TTS")
+            else:
+                voice_id = TTS_VOICE_IDS.get(lang, TTS_VOICE_IDS["en-US"])
+                audio_content = generate_audio(answer, voice_id)
+        except Exception as e:
+            app.logger.error(f"TTS Error: {str(e)}")
+            return jsonify({"error": f"Error generating speech: {str(e)}"}), 500
+
+        audio_base64 = base64.b64encode(audio_content).decode('utf-8')
+        return jsonify({"text": answer, "audio": audio_base64})
     
-    # Reset conversation history.
-    session.pop("conversation", None)
-    conversation = [{"role": "system", "content": system_prompt}]
-    conversation.append({"role": "user", "content": "Dial in"})
-
-    try:
-        response_llm = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=conversation
-        )
-        answer = response_llm.choices[0].message.content
-        conversation.append({"role": "assistant", "content": answer})
-        session["conversation"] = conversation
     except Exception as e:
-        return jsonify({"error": f"Error dialing: {str(e)}"}), 500
-
-    try:
-        print('answer:', answer)
-        if lang == "az-AZ":
-            audio_content = text_to_speech(answer)
-        else:
-            voice_id = TTS_VOICE_IDS.get(lang, TTS_VOICE_IDS["en-US"])
-            audio_content = generate_audio(answer, voice_id)
-    except Exception as e:
-        return jsonify({"error": f"Error generating TTS: {str(e)}"}), 500
-
-    audio_base64 = base64.b64encode(audio_content).decode('utf-8')
-    return jsonify({"text": answer, "audio": audio_base64})
+        app.logger.error(f"Unexpected error in dial: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 @app.route("/process", methods=["POST"])
 def process():
-    data = request.get_json()
-    user_input = data.get("input")
-    lang = data.get("language", "en-US")
+    """Process user input during the conversation."""
+    try:
+        data = request.get_json()
+        user_input = data.get("input")
+        lang = data.get("language", "en-US")
 
-    print('#'*50)
-    print(data)
-    if not user_input:
-        return jsonify({"error": "No input received."}), 400
+        print(f'Processing input: {user_input} in language: {lang}')
+        
+        if not user_input:
+            return jsonify({"error": "No input received."}), 400
 
-    conversation = session.get("conversation", [])
-    if not conversation:
-        conversation.append({"role": "system", "content": SYSTEM_PROMPTS["bank"] + f" Respond in {language_name(lang)}."})
-    conversation.append({"role": "user", "content": user_input})
+        conversation = session.get("conversation", [])
+        if not conversation:
+            # If no conversation exists, create one with the default system prompt
+            base_prompt = SYSTEM_PROMPTS["bank"]
+            system_prompt = base_prompt + f" Respond in {language_name(lang)}."
+            conversation.append({"role": "system", "content": system_prompt})
+            
+        conversation.append({"role": "user", "content": user_input})
+        
+        try:
+            response_llm = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=conversation
+            )
+            answer = response_llm.choices[0].message.content
+            conversation.append({"role": "assistant", "content": answer})
+            session["conversation"] = conversation
+        except Exception as e:
+            app.logger.error(f"LLM Error: {str(e)}")
+            return jsonify({"error": f"Error generating response: {str(e)}"}), 500
+
+        try:
+            if lang == "az-AZ":
+                audio_content = text_to_speech(answer)
+                if not audio_content:
+                    raise Exception("Failed to generate Azerbaijani TTS")
+            else:
+                voice_id = TTS_VOICE_IDS.get(lang, TTS_VOICE_IDS["en-US"])
+                audio_content = generate_audio(answer, voice_id)
+        except Exception as e:
+            app.logger.error(f"TTS Error: {str(e)}")
+            return jsonify({"error": f"Error generating speech: {str(e)}"}), 500
+
+        audio_base64 = base64.b64encode(audio_content).decode('utf-8')
+        return jsonify({"text": answer, "audio": audio_base64})
     
-    try:
-        response_llm = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=conversation
-        )
-        answer = response_llm.choices[0].message.content
-        conversation.append({"role": "assistant", "content": answer})
-        session["conversation"] = conversation
     except Exception as e:
-        return jsonify({"error": f"Error calling LLM: {str(e)}"}), 500
-
-    try:
-        if lang == "az-AZ":
-            audio_content = text_to_speech(answer)
-        else:
-            voice_id = TTS_VOICE_IDS.get(lang, TTS_VOICE_IDS["en-US"])
-            audio_content = generate_audio(answer, voice_id)
-    except Exception as e:
-        return jsonify({"error": f"Error generating TTS: {str(e)}"}), 500
-
-    audio_base64 = base64.b64encode(audio_content).decode('utf-8')
-    return jsonify({"text": answer, "audio": audio_base64})
-
+        app.logger.error(f"Unexpected error in process: {str(e)}")
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe():
-    # Check if the POST request contains an 'audio' file.
-    if 'audio' not in request.files:
-        return jsonify({'error': 'No audio file provided'}), 400
-
-    audio_file = request.files['audio']
-    
-    # Ensure the file has a valid filename.
-    if audio_file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-    
-    selected_model = request.form.get('model')  # This will be either "model_1" or "model_2"
-
-    if not selected_model:
-        return jsonify({'error': 'No model selected.'}), 400
-
+    """Transcribe uploaded audio files, particularly for Azerbaijani."""
     try:
-        # Read the audio data directly from the uploaded file.
-        audio_bytes = audio_file.read()
-        print("Model:", selected_model)
-        if selected_model == "model_1":
-            # Here, we're passing the raw bytes.
-            transcript = asyncio.run(audio_transcribe_elevenlabs(audio_bytes=audio_bytes, file_name=audio_file.filename))
-        else:
-            transcript = asyncio.run(audio_transcribe_custom(audio_bytes=audio_bytes, file_name=audio_file.filename))
+        # Check if the POST request contains an 'audio' file.
+        if 'audio' not in request.files:
+            return jsonify({'error': 'No audio file provided'}), 400
 
+        audio_file = request.files['audio']
+        
+        # Ensure the file has a valid filename.
+        if audio_file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        selected_model = request.form.get('model')  # This will be either "model_1" or "model_2"
+
+        if not selected_model:
+            return jsonify({'error': 'No model selected.'}), 400
+
+        try:
+            # Read the audio data directly from the uploaded file.
+            audio_bytes = audio_file.read()
+            print(f"Transcribing audio with model: {selected_model}")
+            
+            if selected_model == "model_1":
+                # Use ElevenLabs STT
+                transcript = asyncio.run(audio_transcribe_elevenlabs(audio_bytes=audio_bytes, file_name=audio_file.filename))
+            else:
+                # Use custom STT
+                transcript = asyncio.run(audio_transcribe_custom(audio_bytes=audio_bytes, file_name=audio_file.filename))
+
+            if not transcript:
+                raise Exception("Failed to transcribe audio")
+
+        except Exception as e:
+            app.logger.error(f"STT Error: {str(e)}")
+            return jsonify({'error': f'Error transcribing audio: {str(e)}'}), 500
+
+        # Correct Azerbaijani text using OpenAI
+        try:
+            corrected_transcript = correct_azerbaijani_text(transcript)
+        except Exception as e:
+            app.logger.error(f"Text correction error: {str(e)}")
+            # Continue with the uncorrected transcript if correction fails
+            corrected_transcript = transcript
+
+        # Return the transcript as a JSON response.
+        return jsonify({'transcript': corrected_transcript}), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-    transcript = correct_azerbaijani_text(transcript)
-    # Return the transcript as a JSON response.
-    return jsonify({'transcript': transcript}), 200
+        app.logger.error(f"Unexpected error in transcribe: {str(e)}")
+        return jsonify({'error': f'An unexpected error occurred: {str(e)}'}), 500
 
 if __name__ == "__main__":
+    # For local development
     app.run(debug=True)
